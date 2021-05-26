@@ -3,15 +3,26 @@ import {Image, StyleSheet, Text, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {IconAddPhoto, IconRemovePhoto, ILNullPhoto} from '../../assets';
 import {Button, Gap, Header, Link} from '../../components';
-import {colors, fonts} from '../../utils';
+import {colors, fonts, storeData} from '../../utils';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {showMessage} from 'react-native-flash-message';
+import {Fire} from '../../config';
 
-const UploadPhoto = ({navigation}) => {
+const UploadPhoto = ({navigation, route}) => {
+  const {fullName, profession, uid} = route.params;
   const [hasPhoto, setHasPhoto] = React.useState(false);
   const [photo, setPhoto] = React.useState(ILNullPhoto);
+  const [photoForDB, setPhotoForDB] = React.useState('');
+
   const getImage = () => {
-    launchImageLibrary({}, (res) => {
+    const options = {
+      includeBase64: true,
+      quality: 0.5,
+      maxWidth: 200,
+      maxHeight: 200,
+    };
+
+    launchImageLibrary(options, (res) => {
       console.log('response: ', res);
 
       if (res.didCancel) {
@@ -29,12 +40,40 @@ const UploadPhoto = ({navigation}) => {
           color: colors.white,
         });
       } else {
+        setPhotoForDB(`data:${res.type};base64, ${res.base64}`);
+        // console.log('response image: ', res.base64);
         const source = {uri: res.uri};
+
         setPhoto(source);
         setHasPhoto(true);
       }
     });
   };
+
+  const uploadAndContinue = () => {
+    Fire.database()
+      .ref(`users/${uid}/`)
+      .update({photo: photoForDB})
+      .then(() => {
+        const data = route.params;
+        data.photo = photoForDB;
+
+        storeData('user', data).then(() => {
+          navigation.replace('MainApp');
+        });
+      })
+
+      // Error
+      .catch((error) => {
+        showMessage({
+          message: error.errorMessage,
+          type: 'default',
+          backgroundColor: colors.error,
+          color: colors.white,
+        });
+      });
+  };
+
   return (
     <View style={styles.pages}>
       <Header title="Upload Photo" onPress={() => navigation.goBack()} />
@@ -46,15 +85,15 @@ const UploadPhoto = ({navigation}) => {
             {!hasPhoto && <IconAddPhoto style={styles.addPhoto} />}
           </TouchableOpacity>
           <Gap height={24} />
-          <Text style={styles.name}>Shayna Melinda</Text>
+          <Text style={styles.name}>{fullName}</Text>
           <Gap height={4} />
-          <Text style={styles.profession}>Product Designer</Text>
+          <Text style={styles.profession}>{profession}</Text>
         </View>
         <View>
           <Button
             disable={!hasPhoto}
             title="Upload and Continue"
-            onPress={() => navigation.replace('MainApp')}
+            onPress={uploadAndContinue}
           />
           <Gap height={30} />
           <Link

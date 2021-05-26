@@ -18,6 +18,7 @@ const Register = ({navigation}) => {
 
   const onContinue = () => {
     console.log(form);
+
     setLoading(true);
     Fire.auth()
       .createUserWithEmailAndPassword(form.email, form.password)
@@ -27,10 +28,11 @@ const Register = ({navigation}) => {
           fullName: form.fullName,
           profession: form.profession,
           email: form.email,
+          uid: user.uid,
         };
 
         Fire.database()
-          .ref('users/' + user.uid + '/')
+          .ref(`users/${user.uid}/`)
           .set(data)
           .then(() => {
             setLoading(false);
@@ -38,14 +40,13 @@ const Register = ({navigation}) => {
             storeData('user', data);
             console.log('register success: ', user);
           })
-          .then(() => navigation.navigate('UploadPhoto'))
+          .then(() => navigation.navigate('UploadPhoto', data))
 
           // Error
           .catch((error) => {
-            const errorMessage = error.message;
             setLoading(false);
             showMessage({
-              message: errorMessage,
+              message: error.message,
               type: 'default',
               backgroundColor: colors.error,
               color: colors.white,
@@ -56,10 +57,9 @@ const Register = ({navigation}) => {
 
       // Error
       .catch((error) => {
-        const errorMessage = error.message;
         setLoading(false);
         showMessage({
-          message: errorMessage,
+          message: error.message,
           type: 'default',
           backgroundColor: colors.error,
           color: colors.white,

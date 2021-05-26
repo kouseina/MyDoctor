@@ -14,9 +14,15 @@ import {
   NewsItem,
   RatedDoctor,
 } from '../../components';
-import {colors, fonts} from '../../utils';
+import {colors, fonts, getData} from '../../utils';
 
 const Doctor = ({navigation}) => {
+  React.useEffect(() => {
+    getData('user').then((res) => {
+      console.log('user: ', res);
+    });
+  }, []);
+
   return (
     <View style={styles.page}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
