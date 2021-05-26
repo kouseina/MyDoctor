@@ -1,15 +1,24 @@
 import React from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
-import {DummyUser, IconRemovePhoto} from '../../../assets';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import {IconRemovePhoto} from '../../../assets';
 import {colors, fonts} from '../../../utils';
 
-const Profile = ({name, desc, isRemove}) => {
+const Profile = ({name, desc, isRemove, photo, onPress}) => {
   return (
     <View style={styles.container}>
-      <View style={styles.borderProfile}>
-        <Image source={DummyUser} style={styles.avatar} />
-        {isRemove && <IconRemovePhoto style={styles.removePhoto} />}
-      </View>
+      {!isRemove && (
+        <View style={styles.borderProfile}>
+          <Image source={photo} style={styles.avatar} />
+          {isRemove && <IconRemovePhoto style={styles.removePhoto} />}
+        </View>
+      )}
+      {isRemove && (
+        <TouchableOpacity style={styles.borderProfile} onPress={onPress}>
+          <Image source={photo} style={styles.avatar} />
+          {isRemove && <IconRemovePhoto style={styles.removePhoto} />}
+        </TouchableOpacity>
+      )}
       {name && (
         <>
           <Text style={styles.name}>{name}</Text>
@@ -46,12 +55,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.primary[600],
     color: colors.text.primary,
     marginTop: 16,
+    textTransform: 'capitalize',
   },
   profession: {
     fontSize: 16,
     fontFamily: fonts.primary[600],
     color: colors.text.secondary,
     marginTop: 2,
+    textTransform: 'capitalize',
   },
   removePhoto: {
     position: 'absolute',
