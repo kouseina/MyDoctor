@@ -22,6 +22,7 @@ const UpdateProfile = ({navigation}) => {
     getData('user').then((res) => {
       const data = res;
       setPhoto({uri: res.photo});
+      setPhotoForDB(res.photo);
       setProfile(data);
     });
   }, []);
