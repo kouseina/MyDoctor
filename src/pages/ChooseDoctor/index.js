@@ -20,7 +20,6 @@ const ChooseDoctor = ({navigation, route}) => {
       .equalTo(category)
       .once('value')
       .then((res) => {
-        console.log('data list doctor: ', res.val());
         if (res.val()) {
           const oldData = res.val();
           const data = [];
